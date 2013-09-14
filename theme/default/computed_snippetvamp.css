@@ -1,4 +1,4 @@
-/*Generated in 0.014965s with auto_css v1.2*/
+/*Generated in 0.017152s with auto_css v1.2*/
 
     /* HTML5 Reset Stylesheet by HTML5Doctor.com */
     html,body,div,span,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,abbr,address,cite,code,del,dfn,em,img,ins,kbd,q,samp,small,strong,sub,sup,var,b,i,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,figcaption,figure,footer,header,hgroup,menu,nav,section,summary,time,mark,audio,video{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}
@@ -45,7 +45,7 @@ pre{line-height : 15px; color:#EDD;  margin-left : 25px ; margin-right : 10px ; 
     input[type=button].backup,
     p.rss  
     {background:url(sprite.png) no-repeat!important;}
-    p.pdf  
+    p.epub  
     {background:url(sprite.png) no-repeat!important;}
 
 
@@ -266,7 +266,7 @@ p.warning{background-color:#00F;color:#8080ff;margin-top : 10px ; padding : 10px
 .toggle_next:before{content:" ▾";line-height : 20px;}
 .right{text-align: right!important;}
 p.rss{display:inline-block; background-position: 4px -1624px!important; padding-left : 22px ; -moz-border-radius: 5px;  -webkit-border-radius: 5px;  border-radius: 5px;   }
-p.pdf{display:inline-block; background-position: 4px -1927px!important; padding-left : 22px ; -moz-border-radius: 5px;  -webkit-border-radius: 5px;  border-radius: 5px;    margin-right: 1em;}
+p.epub{display:inline-block; background-position: 4px -1927px!important; padding-left : 22px ; -moz-border-radius: 5px;  -webkit-border-radius: 5px;  border-radius: 5px;    margin-right: 1em;}
 
 .button_prive{background-color:rgba(250,50,0,0.5)!important;}
 .button_prive:hover{background-color:rgba(250,50,0,0.9)!important;}

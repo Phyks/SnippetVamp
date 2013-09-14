@@ -449,6 +449,7 @@ function list_tags($all=true){
 }
 function tag_cloud($templ='tag_cloud_link',$sortbynb=false,$tags_checked=false){global $snippets,$template,$admin;if (!isset($snippets['tag_list'])){return false;}if (!$admin&&isset($snippets['tag_private_list'])){$tags=$snippets['tag_private_list'];}else{$tags=$snippets['tag_list'];}$tag_cloud=''; if ($sortbynb){arsort($snippets['tag_list']);} foreach($tags as $tag=>$nb){  $t=str_replace('#TAG',$tag,$template[$templ]);  $t=str_replace('#NB',$nb,$t);   if ($tags_checked && stripos($tags_checked,$tag)!==false || !$tags_checked && stripos($_SERVER['QUERY_STRING'],$tag) ){     $t=str_replace('#checked','checked',$t); }else{ $t=str_replace('#checked','',$t);}$tag_cloud.= $t;}return $tag_cloud;}
 function make_rss($array,$titre){global $template,$config;if(isset($_POST['config'])){return false;}$array=array_reverse($array);    echo str_replace('#titre',$config['app_name'].' '.$config['login'].': '.$titre,$template['rss_header']); foreach($array as $a){if (isset($a['#num']) && is_public($a['#num'])){ $a=array_map('map_entities',$a);echo str_replace(array_keys($a),array_values($a),$template['rss_item']);}} echo $template['rss_footer'];}
+function make_epub($array,$titre){global $template,$config; $epub = new EPub(); if(isset($_POST['config'])){return false;}$array=array_reverse($array);    $content = str_replace('#titre',$config['app_name'].' '.$config['login'].': '.$titre,$template['epub_header']); $epub->setTitle($config['app_name'].' '.$config['login'].': '.$titre); $epub->setIdentifier('Todo', EPub::IDENTIFIER_URI); $epub->setLanguage(''); foreach($array as $a){if (isset($a['#num']) && is_public($a['#num'])){ $a=array_map('map_entities',$a); $a = array_map('nl2br', $a); $content .= str_replace(array_keys($a),array_values($a),$template['epub_item']);}} $content .= $template['epub_footer']; $epub->addChapter('Cheatsheet', 'cheatsheet.html', $content); return $epub->sendBook("Cheatsheet");}
 function form($num=false,$placeholder='Snippet'){if (!is_ok()){return '';} global $config,$template,$snippets;$repl=array();$repl['#labeltags']=msg('Tags');$repl['#placeholder']=$placeholder;$repl['#labeltitre']=msg('Title');$repl['#passwordform']='';$repl['#labeladr']=msg('Website');$repl['#labelcontent']=msg('Content');if (!$num){$repl['#uniqid']=uniqid();    $repl['#formtitre']=msg('Add a snippet');$repl['#tagcloud']=tag_cloud('tag_cloud_checkbox',$config['sort_tags_by_nb']);$repl['value="#titre"']='value=""';$repl['value="#adresse"']='value=""';$repl['#contenu</textarea>']='</textarea>';$repl['#hidden']='hidden';return str_replace(array_keys($repl),array_values($repl),$template['snippet_frm']);}else{if (isset($snippets[$num])){$repl['#uniqid']=$num;$repl['#formtitre']=msg('Edit a snippet');   $repl['#tagcloud']=tag_cloud('tag_cloud_checkbox',$config['sort_tags_by_nb'],$snippets[$num]['#tags']);$repl['value="#titre"']='value="'.$snippets[$num]['#titre'].'"';$repl['value="#adresse"']='value="'.$snippets[$num]['#adresse'].'"';$repl['#contenu</textarea>']=$snippets[$num]['#contenu'].'</textarea>';$repl['#hidden']='';return str_replace(array_keys($repl),array_values($repl),$template['snippet_frm']);}else{return false;}}}
 function form_bookmarklet($title='', $url='',$content='',$placeholder='Snippet',$passwordform=''){global $config,$template;$repl=array();$repl['#labeltags']=msg('Tags');$repl['#labeltitre']=msg('Title');$repl['#labeladr']=msg('Website');$repl['#labelcontent']=msg('Content');$repl['#placeholder']=$placeholder;$repl['#passwordform']=$passwordform;$repl['#uniqid']=uniqid();   $repl['#formtitre']=msg('Add a snippet');$repl['#tagcloud']=tag_cloud('tag_cloud_checkbox',$config['sort_tags_by_nb']);$repl['value="#titre"']='value="'.$title.'"';$repl['value="#adresse"']='value="'.$url.'"';$repl['#contenu</textarea>']=$content.'</textarea>';$repl['#hidden']='';$repl[' name="from_bookmarklet" value="no"']=' name="from_bookmarklet" value="yes"';return str_replace(array_keys($repl),array_values($repl),$template['snippet_frm']);}
 function form_config(){global $msg,$config;$selecttrue=$selectfalse='';$form=  '<form name="config" action="" method="post" id="config">';foreach ($config as $cle=>$val){  if ($cle!='login'&&$cle!='update_url'&&$cle!='pass'&&$cle!='salt'&&$cle!='encryption_key'&&$cle!='version'){$form.= '<label for="'.$cle.'">'.msg($cle).'</label>';if (is_bool($val)||$val=='true'||$val=='false'){  if ($val==true||$val=='true'){$val='true';$selecttrue=' selected="selected" ';$selectfalse='';}else{$val='false';$selectfalse=' selected="selected" ';$selecttrue='';}$form.='<select id="'.$cle.'" name="'.$cle.'"><option value="true" '.$selecttrue.'>'.msg('true').'</option><option value="false"'.$selectfalse.'>'.msg('false').'</option></select>';}elseif(stripos($cle,'_textarea')){$form.= '<textarea name="'.$cle.'" id="'.$cle.'" >'.$val.'</textarea>';}elseif($cle=='highlight_theme'||$cle=='highlight_embed_theme'){$form.='<select  id="'.$cle.'" name="'.$cle.'">';$form.= array2options(glob('styles/*.css'),true,$val);$form.='</select>';}elseif($cle=='snippetvamp_theme'){$form.='<select  id="'.$cle.'" name="snippetvamp_theme">';$form.= array2options(glob('theme/*'),true,$val); $form.='</select>';}elseif($cle=='lang'){$form.='<select  id="'.$cle.'" name="lang">';$form.= array2options($msg,false,$val);$form.='</select>';}else{$form.= '<input type="text" name="'.$cle.'" value="'.$val.'"/>';}}}$form.='<label for="login">Login</label><input type="text" name="login" value="'.$config['login'].'"/><label for="password">'.msg('Password (leave blank if you don\'t want to change)').'</label><input type="password" name="password"/>';$form.='<input type="submit" value="'.msg('Save').'" title="'.msg('save this configuration').'"/></form>';return $form;}
@@ -457,7 +458,7 @@ function form_replace_file(){global $config;$form=  '<form name="replace" action
 function restore_sv_link(){return'<a class="button restore" href="?restore">'.msg('restore SnippetVamp previous version').'</a>';}
 function backup_link(){return '<input type="button" class="backup" value="'.msg('backup').'" title="'.msg('backup your data file to your computer').'"/>';}
 function feed_link($url_only=false){if (stripos($_SERVER['QUERY_STRING'],'config=')===false&&stripos($_SERVER['QUERY_STRING'],'txt=')===false){global $config;$link=$config['url'].'?rss=on&'.$_SERVER['QUERY_STRING']; if ($url_only){echo $link;}else{echo '<p class="rss"><a href="'.$link.'">'.msg("This page's Feed").'</a></p>';}}}
-function cheatsheet_link($url_only=false){if (stripos($_SERVER['QUERY_STRING'],'config=')===false&&stripos($_SERVER['QUERY_STRING'],'txt=')===false){global $config;$link=$config['url'].'?pdf=on&'.$_SERVER['QUERY_STRING']; if ($url_only){echo $link;}else{echo '<p class="pdf"><a href="'.$link.'">'.msg("This page in PDF").'</a></p>';}}}
+function cheatsheet_link($url_only=false){if (stripos($_SERVER['QUERY_STRING'],'config=')===false&&stripos($_SERVER['QUERY_STRING'],'txt=')===false){global $config;$link=$config['url'].'?epub=on&'.$_SERVER['QUERY_STRING']; if ($url_only){echo $link;}else{echo '<p class="epub"><a href="'.$link.'">'.msg("This page in ePub").'</a></p>';}}}
 function log_link(){return '<a class="button log" href="?log">'.msg('see log file').'</a>';}
 function config_link(){if (stripos($_SERVER['QUERY_STRING'],'config=')===false&&is_ok()){echo'<a class="config" href="?config=true">'.msg('Configuration').'</a> - ';}}
 function are_values_in_string($array,$string,$all=true){$found=0;foreach($array as $val){if (stripos(' '.$string.' ', ' '.$val.' ')!==false){$found++;}}if ($all && $found==count($array) || !$all && $found>0){return true;}else{return false;}}
@@ -587,6 +588,20 @@ $template['snippet_frm']='<br/>
 $template['rss_header']='<?xml version="1.0" encoding="utf-8" ?>'.$r.'<rss version="2.0"   xmlns:content="http://purl.org/rss/1.0/modules/content/">'.$r.'<channel>'.$r.'<title><![CDATA[#titre]]></title><link>'.$config['url'].'</link>'.$r.'<description><![CDATA[Snippets]]></description>'.$r;
 $template['rss_item']='<item>'.$r.'<title><![CDATA[#titre]]></title>'.$r.'<guid isPermaLink="false"><![CDATA['.$config['url'].'?snippet=#num]]></guid>'.$r.'<link><![CDATA['.$config['url'].'?snippet=#num]]></link>'.$r.'<description><![CDATA[<pre><code>#contenu</code></pre>]]></description>'.$r.'<pubDate>#rss_date</pubDate>'.$r.'</item>';
 $template['rss_footer']='</channel>'.$r.'</rss>';
+$template['epub_header'] =
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                . "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\n"
+                . " \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n"
+                . "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n"
+                . "<head>"
+                . "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n"
+                . "<link rel=\"stylesheet\" type=\"text/css\" href=\"styles.css\" />\n"
+                . "<title>Test Book</title>\n"
+                . "</head>\n"
+                . "<body>\n"
+                . "<h1>#titre</h1>\n";
+$template['epub_item'] = "<h2><a href=\"{url}\">#titre</a></h2>\n<p>#contenu</p>";
+$template['epub_footer'] = "</body>\n</html>\n";
 $template['bookmarklet_header']='<html  xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr" charset="UTF-8"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><meta charset="UTF-8"><link rel="shortcut icon" href="theme/'.$config['snippetvamp_theme'].'/favicon.png" /><link rel="stylesheet" type="text/css" href="theme/'.$config['snippetvamp_theme'].'/computed_snippetvamp.css?lastupdate=1365701915"  media="screen" /></head><body '.BodyClasses('bookmarklet').' >';
 ######################################################################
 
@@ -624,6 +639,32 @@ if ($_GET){
     if (isset($_GET['rss'])){
         $s=array_slice($snippets, -$config['nb_snippets_rss']);header("Content-Type: application/rss+xml");
         echo make_rss($s,msg('last'));
+        $contenu=cache_end($nom_page_cache,0);
+        exit($contenu);
+    }
+
+    # ePub export
+    if (isset($_GET['tag'])&&isset($_GET['epub'])){
+        require_once('Zip.php'); 
+        require_once('EPub.php'); 
+        $tag=$_GET['tag'];
+        echo make_epub(return_matching($tag,'#tags'),'Snippets: '.$tag);
+        $contenu=cache_end($nom_page_cache,0);
+        exit($contenu);
+    }
+    if (isset($_GET['search'])&&isset($_GET['epub'])){
+        require_once('Zip.php'); 
+        require_once('EPub.php'); 
+        $tag=$_GET['search'];
+        echo make_epub(return_matching($tag),'Snippets: '.$tag);
+        $contenu=cache_end($nom_page_cache,0);
+        exit($contenu);
+    }
+    if (isset($_GET['epub'])){
+        require_once('Zip.php'); 
+        require_once('EPub.php'); 
+        $s=array_slice($snippets, -$config['nb_snippets_rss']);header("Content-Type: application/epub+zip");
+        echo make_epub($s,msg('last'));
         $contenu=cache_end($nom_page_cache,0);
         exit($contenu);
     }
