@@ -60,6 +60,8 @@ pre{lh 15 color:#EDD;  marl 25 marr 10 pad 5  mart 10 marb 10 antioverflow }
     input[type=button].backup,
     p.rss  
     {background:url(sprite.png) no-repeat!important;}
+    p.pdf  
+    {background:url(sprite.png) no-repeat!important;}
 
 
 /* LAYOUT */
@@ -279,6 +281,7 @@ p.warning{background-color:couleur_warning;color:couleur_text_warning;mart 10 pa
 .toggle_next:before{content:" ▾";lh 20}
 .right{txtr!important}
 p.rss{disib background-position: 4px -1624px!important; padl 22 roundc arrondi}
+p.pdf{disib background-position: 4px -1927px!important; padl 22 roundc arrondi margin-right: 1em;}
 
 .button_prive{background-color:rgba(250,50,0,0.5)!important;}
 .button_prive:hover{background-color:rgba(250,50,0,0.9)!important;}
